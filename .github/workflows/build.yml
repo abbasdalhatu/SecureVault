@@ -1,0 +1,55 @@
+name: Build and Release Desktop App
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch: # Allows manual trigger from the Actions tab
+
+jobs:
+  build:
+    name: Build & Package App
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Front-end & Package Electron Application
+        run: |
+          npm run build
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            npx electron-builder --win
+          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+            npx electron-builder --mac
+          else
+            npx electron-builder --linux
+          fi
+        shell: bash
+
+      - name: Upload Installer Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: securevault-${{ matrix.os }}-build
+          path: |
+            dist_electron/*.exe
+            dist_electron/*.dmg
+            dist_electron/*.zip
+            dist_electron/*.AppImage
+            dist_electron/*.deb
+            !dist_electron/mac/**
+            !dist_electron/win-unpacked/**
+            !dist_electron/linux-unpacked/**
