@@ -6,6 +6,10 @@ on:
       - 'v*'
   workflow_dispatch: # Allows manual trigger from the Actions tab
 
+# Required permissions to write release assets on GitHub
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build & Package App
@@ -53,3 +57,35 @@ jobs:
             !dist_electron/mac/**
             !dist_electron/win-unpacked/**
             !dist_electron/linux-unpacked/**
+
+  release:
+    name: Create & Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Consolidate Release Files
+        run: |
+          mkdir release-files
+          # Find and copy all compiled installation packages into a single flat directory
+          find artifacts -type f \( -name "*.exe" -o -name "*.dmg" -o -name "*.zip" -o -name "*.AppImage" -o -name "*.deb" \) -exec cp {} release-files/ \;
+          echo "Files to upload:"
+          ls -R release-files
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-files/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
