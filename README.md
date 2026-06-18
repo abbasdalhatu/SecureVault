@@ -70,8 +70,21 @@ To install the pre-compiled desktop application:
    > [!NOTE]
    > On macOS, since this application is not signed with an Apple Developer Account, you may need to right-click the application icon, select **Open**, and confirm to bypass Gatekeeper protection.
 
-### For Developers
-To run or build the application from source code:
+### For Developers & Users Building From Source
+
+If you want to compile and build the desktop setup files locally on your own machine, you can build them directly from the source code.
+
+#### 📋 Prerequisites
+* **Node.js** (v18 or higher)
+* **npm** (usually packaged with Node.js)
+* **Git**
+* **For Linux Builders**: You will need `fakeroot` and `dpkg` installed if you are packaging a Debian package (`.deb`). Install them on Debian/Ubuntu with:
+  ```bash
+  sudo apt-get update
+  sudo apt-get install -y fakeroot dpkg
+  ```
+
+#### 🛠️ Step-by-Step Build Instructions
 
 1. **Clone the Repository**:
    ```bash
@@ -84,36 +97,49 @@ To run or build the application from source code:
    npm install
    ```
 
-3. **Run in Development Mode**:
-   - To run the web developer environment:
+3. **Run in Development Mode (Optional)**:
+   * Web developer environment:
      ```bash
      npm run dev
      ```
-   - To run the Electron desktop application environment:
+   * Electron desktop app environment:
      ```bash
      npm run electron:dev
      ```
 
-4. **Build the Desktop Installer**:
-   To bundle and package the application into installers for different platforms:
-   - **Windows Installer**:
-     ```bash
-     npm run electron:build:win
-     ```
-     The generated installer will be placed in `dist_electron/SecureVault Setup 1.0.0.exe`.
-   - **macOS Installer**:
+4. **Compile the App for your Platform**:
+
+   * 🍏 **macOS** (Builds `.dmg` and `.zip` installer):
+     Run the following command on a macOS machine:
      ```bash
      npm run electron:build:mac
      ```
-     The generated installer/archive will be placed in `dist_electron/SecureVault-1.0.0.dmg` and `dist_electron/SecureVault-1.0.0-mac.zip`.
-   - **Linux Installer**:
+     *The installer will be generated in `dist_electron/SecureVault-1.0.0.dmg` and `dist_electron/SecureVault-1.0.0-mac.zip`.*
+
+   * 🐧 **Linux** (Builds `.AppImage` and `.deb` package):
+     Run the following command on a Linux machine (or Windows/macOS):
      ```bash
      npm run electron:build:linux
      ```
-     The generated packages will be placed in `dist_electron/SecureVault-1.0.0.AppImage` and `dist_electron/secure-vault-desktop_1.0.0_amd64.deb`.
-   - **All Platforms (Windows, macOS & Linux)**:
+     *The installers will be generated in `dist_electron/SecureVault-1.0.0.AppImage` and `dist_electron/secure-vault-desktop_1.0.0_amd64.deb`.*
+
+   * 🪟 **Windows** (Builds `.exe` installer):
+     Run the following command on a Windows machine:
      ```bash
-     npm run electron:build:all
+     npm run electron:build:win
+     ```
+     *The installer will be generated in `dist_electron/SecureVault Setup 1.0.0.exe`.*
+
+5. **Installing/Running the Compiled App**:
+   * **On macOS**: Double-click the `.dmg` file and drag `SecureVault` into your `Applications` folder. Since the app is self-built/unsigned, right-click the application icon inside your `Applications` folder, choose **Open**, and confirm the Gatekeeper warning to open the app.
+   * **On Linux (AppImage)**: Make the file executable and run it:
+     ```bash
+     chmod +x dist_electron/SecureVault-1.0.0.AppImage
+     ./dist_electron/SecureVault-1.0.0.AppImage
+     ```
+   * **On Linux (Debian/Ubuntu)**: Install the `.deb` package using dpkg:
+     ```bash
+     sudo dpkg -i dist_electron/secure-vault-desktop_1.0.0_amd64.deb
      ```
 
    > [!TIP]
