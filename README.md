@@ -57,18 +57,8 @@ graph TD
 ### For Users
 To install the pre-compiled desktop application:
 1. Go to the [Releases](https://github.com/abbasdalhatu/password-manager/releases) page of this repository.
-2. Download the installer for your operating system:
-   - **Windows**: `SecureVault Setup 1.0.0.exe`
-   - **macOS**: `SecureVault-1.0.0.dmg` or `SecureVault-1.0.0-mac.zip`
-   - **Linux**: `SecureVault-1.0.0.AppImage` or `secure-vault-desktop_1.0.0_amd64.deb`
-3. Run the installer to complete the setup:
-   - On **Windows**: Run the `.exe` installer.
-   - On **macOS**: Double-click the `.dmg` file and drag `SecureVault` to your `Applications` folder, or extract the `.zip` archive.
-   - On **Linux**: 
-     - For **AppImage**: Right-click the `.AppImage` file, open Properties > Permissions, check "Allow executing file as program", and run it. Alternatively, run `chmod +x SecureVault-1.0.0.AppImage && ./SecureVault-1.0.0.AppImage` in the terminal.
-     - For **Debian/Ubuntu**: Install the `.deb` package using `sudo dpkg -i secure-vault-desktop_1.0.0_amd64.deb` or double-click it.
-   > [!NOTE]
-   > On macOS, since this application is not signed with an Apple Developer Account, you may need to right-click the application icon, select **Open**, and confirm to bypass Gatekeeper protection.
+2. Download `SecureVault Setup 1.0.0.exe` for Windows.
+3. Run the installer to complete the setup and start using the app.
 
 ### For Developers & Users Building From Source
 
