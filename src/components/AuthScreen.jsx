@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import logoImg from "../assets/logo.png";
 import { generateRecoveryPhrase } from "../utils/words";
 
-export default function AuthScreen({ isFirstTime, onUnlock, onSetup, onRecover, onResetPassword }) {
+export default function AuthScreen({ isFirstTime, onUnlock, onSetup, onRecover, onResetPassword, onImport }) {
   // Master Password States
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -27,6 +27,23 @@ export default function AuthScreen({ isFirstTime, onUnlock, onSetup, onRecover, 
       setRecoveryWords(generateRecoveryPhrase());
     }
   }, [isFirstTime]);
+
+  const handleImportFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        onImport(data);
+      } catch (err) {
+        setError("Invalid file format. Please import a valid SecureVault export file.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
 
   // Simple password strength calculator
   const checkStrength = (val) => {
@@ -263,6 +280,21 @@ export default function AuthScreen({ isFirstTime, onUnlock, onSetup, onRecover, 
               <button type="submit" className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>
                 Next: Recovery Phrase
               </button>
+
+              <div style={{ textAlign: "center", marginTop: "1rem", borderTop: "1px solid var(--border-glass)", paddingTop: "1rem" }}>
+                <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>Already have a backup from another device?</span>
+                <div style={{ marginTop: "0.5rem" }}>
+                  <label className="btn btn-secondary" style={{ display: "inline-flex", cursor: "pointer", gap: "0.5rem", fontSize: "0.85rem", margin: 0 }}>
+                    📥 Import Existing Vault
+                    <input
+                      type="file"
+                      accept=".json"
+                      style={{ display: "none" }}
+                      onChange={handleImportFileChange}
+                    />
+                  </label>
+                </div>
+              </div>
             </form>
           ) : (
             // SETUP STEP 2: RECOVERY PHRASE DISPLAY
@@ -358,6 +390,21 @@ export default function AuthScreen({ isFirstTime, onUnlock, onSetup, onRecover, 
                 >
                   Forgot Master Password? Recover Vault
                 </button>
+              </div>
+
+              <div style={{ textAlign: "center", marginTop: "1rem", borderTop: "1px solid var(--border-glass)", paddingTop: "1rem" }}>
+                <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>Need to restore a different backup?</span>
+                <div style={{ marginTop: "0.5rem" }}>
+                  <label className="btn btn-secondary" style={{ display: "inline-flex", cursor: "pointer", gap: "0.5rem", fontSize: "0.85rem", margin: 0 }}>
+                    📥 Import Vault Backup
+                    <input
+                      type="file"
+                      accept=".json"
+                      style={{ display: "none" }}
+                      onChange={handleImportFileChange}
+                    />
+                  </label>
+                </div>
               </div>
             </form>
           ) : viewMode === "recover" ? (

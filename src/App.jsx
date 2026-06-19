@@ -222,6 +222,11 @@ export default function App() {
     localStorage.setItem("securevault_items", JSON.stringify(encryptedItems));
     setActiveModalItem(null);
     resetInactivityTimer();
+
+    // Trigger success toast
+    setToastMessage("Credential encrypted & saved successfully.");
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 4000);
   };
 
   // 5. Delete Credential
@@ -395,6 +400,7 @@ export default function App() {
             onSetup={handleSetupVault}
             onRecover={handleRecoverVault}
             onResetPassword={handleResetMasterPassword}
+            onImport={handleImportVault}
           />
         ) : (
           <VaultDashboard
@@ -406,6 +412,7 @@ export default function App() {
             onExportVault={handleExportVault}
             onImportVault={handleImportVault}
             onCopyPassword={handleCopyPassword}
+            onSaveItem={handleSaveItem}
           />
         )}
       </main>

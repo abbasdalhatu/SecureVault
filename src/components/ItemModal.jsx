@@ -49,10 +49,10 @@ export default function ItemModal({ item, onSave, onClose }) {
     <div className="modal-overlay">
       <div className="modal-content" style={{ maxWidth: showGen ? "800px" : "520px", transition: "max-width 0.3s ease" }}>
         
-        <div style={{ display: "flex", gap: "2rem" }}>
+        <div className="modal-body-container">
           
           {/* MAIN EDIT FORM */}
-          <div style={{ flexGrow: 1, minWidth: "280px" }}>
+          <div className="modal-main-form">
             <h2 style={{ fontSize: "1.4rem", marginBottom: "1.2rem" }} className="gradient-text">
               {isEdit ? "Edit Vault Item" : "Secure New Credential"}
             </h2>
@@ -184,7 +184,7 @@ export default function ItemModal({ item, onSave, onClose }) {
 
           {/* SIDE PANEL: PASSWORD GENERATOR (COLLAPSIBLE DRAWER) */}
           {showGen && (
-            <div style={{ width: "300px", borderLeft: "1px solid var(--border-glass)", paddingLeft: "2rem", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div className="modal-side-panel">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                 <h3 style={{ fontSize: "1.1rem" }} className="gradient-text">⚡ Password Generator</h3>
                 <button

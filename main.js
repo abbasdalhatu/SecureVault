@@ -1,6 +1,8 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 
+const isDev = process.env.NODE_ENV === "development";
+
 let mainWindow;
 
 function createWindow() {
@@ -10,7 +12,7 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     title: "SecureVault",
-    icon: path.join(__dirname, "public/logo.png"),
+    icon: path.join(__dirname, isDev ? "public/logo.png" : "dist/logo.png"),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -18,8 +20,6 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js") // Optional, but set up for security
     }
   });
-
-  const isDev = process.env.NODE_ENV === "development";
 
   if (isDev) {
     // Load Vite local development server

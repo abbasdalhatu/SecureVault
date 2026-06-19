@@ -18,8 +18,11 @@ dist_electron
 !.vscode/extensions.json
 .idea
 .DS_Store
-*.suo
+*.sln
 *.ntvs*
 *.njsproj
-*.sln
 *.sw?
+
+# Compiled mobile binaries
+*.apk
+

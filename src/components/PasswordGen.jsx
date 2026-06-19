@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
-export default function PasswordGen({ inlineMode = false, onSelectPassword }) {
+export default function PasswordGen({ inlineMode = false, onSelectPassword, onGenerate, onCopyPassword }) {
   const [length, setLength] = useState(16);
   const [uppercase, setUppercase] = useState(true);
   const [lowercase, setLowercase] = useState(true);
@@ -17,6 +17,7 @@ export default function PasswordGen({ inlineMode = false, onSelectPassword }) {
 
     if (!pool) {
       setGenerated("");
+      if (onGenerate) onGenerate("");
       return;
     }
 
@@ -30,6 +31,9 @@ export default function PasswordGen({ inlineMode = false, onSelectPassword }) {
       result += pool.charAt(randomArray[i] % poolLength);
     }
     setGenerated(result);
+    if (onGenerate) {
+      onGenerate(result);
+    }
   };
 
   // Generate on load or parameter changes
@@ -88,14 +92,32 @@ export default function PasswordGen({ inlineMode = false, onSelectPassword }) {
           {generated || "Configure options..."}
         </div>
 
-        <button
-          type="button"
-          className="btn btn-secondary"
-          style={{ padding: "0.4rem 1rem", fontSize: "0.82rem", alignSelf: "center" }}
-          onClick={generate}
-        >
-          🔄 Regenerate
-        </button>
+        <div style={{ display: "flex", gap: "0.6rem", justifyContent: "center" }}>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ padding: "0.4rem 1rem", fontSize: "0.82rem" }}
+            onClick={generate}
+          >
+            🔄 Regenerate
+          </button>
+          {generated && (
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ padding: "0.4rem 1rem", fontSize: "0.82rem" }}
+              onClick={() => {
+                if (onCopyPassword) {
+                  onCopyPassword(generated);
+                } else {
+                  navigator.clipboard.writeText(generated);
+                }
+              }}
+            >
+              📋 Copy
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Entropy Health Metric */}
