@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import PasswordGen from "./PasswordGen";
+import SecurityPrompt from "./SecurityPrompt";
 
 export default function ItemModal({ item, onSave, onClose }) {
   const isEdit = !!item;
@@ -12,6 +13,7 @@ export default function ItemModal({ item, onSave, onClose }) {
   const [notes, setNotes] = useState(item?.notes || "");
 
   const [showPass, setShowPass] = useState(false);
+  const [showSecurityPrompt, setShowSecurityPrompt] = useState(false);
   const [showGen, setShowGen] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -131,7 +133,13 @@ export default function ItemModal({ item, onSave, onClose }) {
                       <button
                         type="button"
                         className="input-icon-right"
-                        onClick={() => setShowPass(!showPass)}
+                        onClick={() => {
+                          if (showPass) {
+                            setShowPass(false);
+                          } else {
+                            setShowSecurityPrompt(true);
+                          }
+                        }}
                         title="Toggle visibility"
                       >
                         {showPass ? "🙈" : "👁️"}
@@ -205,6 +213,15 @@ export default function ItemModal({ item, onSave, onClose }) {
         </div>
 
       </div>
+      {showSecurityPrompt && (
+        <SecurityPrompt
+          onSuccess={() => {
+            setShowPass(true);
+            setShowSecurityPrompt(false);
+          }}
+          onCancel={() => setShowSecurityPrompt(false)}
+        />
+      )}
     </div>
   );
 }

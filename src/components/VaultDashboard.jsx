@@ -1,6 +1,8 @@
 import { useState } from "react";
 import logoImg from "../assets/logo.png";
 import PasswordGen from "./PasswordGen";
+import SecurityPrompt from "./SecurityPrompt";
+import SecurityAudit from "./SecurityAudit";
 
 const CATEGORIES = [
   { id: "all", label: "All Items", icon: "📦" },
@@ -23,6 +25,8 @@ export default function VaultDashboard({
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [revealedPasswords, setRevealedPasswords] = useState({});
+  const [pendingRevealId, setPendingRevealId] = useState(null);
+  const [showExportPrompt, setShowExportPrompt] = useState(false);
 
   // Password Generator - Save to Vault form state
   const [genTitle, setGenTitle] = useState("");
@@ -71,14 +75,66 @@ export default function VaultDashboard({
     setKeyForReset(prev => prev + 1);
   };
 
-  // Toggle quick-peek password visibility in list row
+  // Toggle quick-peek password visibility in list row with biometric verification
   const togglePasswordVisibility = (itemId, e) => {
     e.stopPropagation();
-    setRevealedPasswords(prev => ({
-      ...prev,
-      [itemId]: !prev[itemId]
-    }));
+    if (revealedPasswords[itemId]) {
+      // If it's already shown, hide it without prompt
+      setRevealedPasswords(prev => ({
+        ...prev,
+        [itemId]: false
+      }));
+    } else {
+      // Show biometric prompt to reveal
+      setPendingRevealId(itemId);
+    }
   };
+
+  // Group items by password to check for reuse and calculate warning count
+  const getAuditWarningCount = () => {
+    const creds = items.filter(item => item.category !== "note" && item.password);
+    
+    // Find reused
+    const reusedMap = {};
+    creds.forEach(item => {
+      const p = item.password;
+      reusedMap[p] = (reusedMap[p] || 0) + 1;
+    });
+
+    const WEAK_PATTERNS = ["12345", "123456", "12345678", "password", "admin", "qwerty", "letmein", "123456789"];
+
+    let count = 0;
+    creds.forEach(item => {
+      const pass = item.password;
+      let uppercase = false, lowercase = false, numbers = false, symbols = false;
+      for (let i = 0; i < pass.length; i++) {
+        const char = pass[i];
+        if (/[A-Z]/.test(char)) uppercase = true;
+        else if (/[a-z]/.test(char)) lowercase = true;
+        else if (/[0-9]/.test(char)) numbers = true;
+        else symbols = true;
+      }
+
+      let poolSize = 0;
+      if (uppercase) poolSize += 26;
+      if (lowercase) poolSize += 26;
+      if (numbers) poolSize += 10;
+      if (symbols) poolSize += 26;
+
+      const entropy = poolSize === 0 ? 0 : pass.length * Math.log2(poolSize);
+      
+      const isWeak = entropy < 60 || WEAK_PATTERNS.includes(pass.toLowerCase()) || pass.length < 10;
+      const isReused = reusedMap[pass] > 1;
+
+      if (isWeak || isReused) {
+        count++;
+      }
+    });
+
+    return count;
+  };
+
+  const warningCount = getAuditWarningCount();
 
   // Filter vault items
   const filteredItems = items.filter(item => {
@@ -107,7 +163,7 @@ export default function VaultDashboard({
       try {
         const data = JSON.parse(event.target.result);
         onImportVault(data);
-      } catch (err) {
+      } catch {
         alert("Invalid file format. Please import a valid SecureVault export file.");
       }
     };
@@ -130,7 +186,7 @@ export default function VaultDashboard({
         </div>
 
         <div className="dashboard-actions-group">
-          <button className="btn btn-secondary" onClick={onExportVault}>
+          <button className="btn btn-secondary" onClick={() => setShowExportPrompt(true)}>
             📥 Export Encrypted
           </button>
           
@@ -189,6 +245,20 @@ export default function VaultDashboard({
                   <span>⚡</span>
                   <span>Password Generator</span>
                 </span>
+              </li>
+              <li
+                className={`sidebar-item ${activeCategory === "audit" ? "active" : ""}`}
+                onClick={() => setActiveCategory("audit")}
+              >
+                <span style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                  <span>🛡️</span>
+                  <span>Security Audit</span>
+                </span>
+                {warningCount > 0 && (
+                  <span className="item-count-badge" style={{ background: "#ef4444", color: "white", fontWeight: "bold" }}>
+                    {warningCount}
+                  </span>
+                )}
               </li>
             </ul>
           </div>
@@ -315,6 +385,13 @@ export default function VaultDashboard({
 
             </div>
           </div>
+        ) : activeCategory === "audit" ? (
+          <SecurityAudit
+            items={items}
+            onEditItem={onEditItem}
+            onSaveItem={onSaveItem}
+            onCopyPassword={onCopyPassword}
+          />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             {/* Search bar */}
@@ -423,6 +500,29 @@ export default function VaultDashboard({
           </div>
         )}
       </div>
+      {pendingRevealId && (
+        <SecurityPrompt
+          onSuccess={() => {
+            setRevealedPasswords(prev => ({
+              ...prev,
+              [pendingRevealId]: true
+            }));
+            setPendingRevealId(null);
+          }}
+          onCancel={() => setPendingRevealId(null)}
+        />
+      )}
+      {showExportPrompt && (
+        <SecurityPrompt
+          pinMessage="Enter your Security PIN to export your encrypted vault."
+          passwordMessage="Confirm your Master Password to export your encrypted vault."
+          onSuccess={() => {
+            setShowExportPrompt(false);
+            onExportVault();
+          }}
+          onCancel={() => setShowExportPrompt(false)}
+        />
+      )}
     </div>
   );
 }

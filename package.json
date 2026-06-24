@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "@capacitor/core": "^8.4.0",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/share": "^8.0.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
@@ -54,14 +56,17 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "public/logo.png"
+      "icon": "public/logo.png",
+      "executableName": "SecureVault"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "runAfterFinish": true
+      "runAfterFinish": true,
+      "shortcutName": "SecureVault",
+      "include": "build/installer.nsh"
     },
     "mac": {
       "target": [

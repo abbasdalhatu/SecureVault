@@ -6,6 +6,8 @@ export default function AuthScreen({ isFirstTime, onUnlock, onSetup, onRecover, 
   // Master Password States
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [pin, setPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
@@ -68,7 +70,7 @@ export default function AuthScreen({ isFirstTime, onUnlock, onSetup, onRecover, 
     setTimeout(() => setShake(false), 400);
   };
 
-  // Setup Flow - Step 1: Password validation
+  // Setup Flow - Step 1: Password & PIN validation
   const handleSetupStep1Submit = (e) => {
     e.preventDefault();
     setError("");
@@ -81,6 +83,18 @@ export default function AuthScreen({ isFirstTime, onUnlock, onSetup, onRecover, 
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
+      triggerShake();
+      return;
+    }
+
+    if (!/^\d{4,6}$/.test(pin)) {
+      setError("Security PIN must be 4 to 6 digits.");
+      triggerShake();
+      return;
+    }
+
+    if (pin !== confirmPin) {
+      setError("Security PINs do not match.");
       triggerShake();
       return;
     }
@@ -100,7 +114,7 @@ export default function AuthScreen({ isFirstTime, onUnlock, onSetup, onRecover, 
     }
 
     const phraseStr = recoveryWords.join(" ");
-    onSetup(password, phraseStr);
+    onSetup(password, phraseStr, pin);
   };
 
   // Normal Unlock Submit
@@ -273,6 +287,40 @@ export default function AuthScreen({ isFirstTime, onUnlock, onSetup, onRecover, 
                   placeholder="Retype password..."
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "0.4rem" }}>
+                  Define Security PIN (4-6 digits)
+                </label>
+                <input
+                  type="password"
+                  pattern="\d*"
+                  inputMode="numeric"
+                  maxLength={6}
+                  className="input-field"
+                  placeholder="4 to 6 digit security PIN"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "0.4rem" }}>
+                  Confirm Security PIN
+                </label>
+                <input
+                  type="password"
+                  pattern="\d*"
+                  inputMode="numeric"
+                  maxLength={6}
+                  className="input-field"
+                  placeholder="Retype security PIN"
+                  value={confirmPin}
+                  onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
                   required
                 />
               </div>

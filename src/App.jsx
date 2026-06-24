@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import AuthScreen from "./components/AuthScreen";
 import VaultDashboard from "./components/VaultDashboard";
 import ItemModal from "./components/ItemModal";
-import { setupVault, unlockVault, encryptData, decryptData, encryptMasterPassword, decryptMasterPassword } from "./utils/crypto";
+import PinSetupScreen from "./components/PinSetupScreen";
+import { setupVault, unlockVault, encryptData, decryptData, encryptMasterPassword, decryptMasterPassword, setupPin, verifyPin } from "./utils/crypto";
 import { generateRecoveryPhrase } from "./utils/words";
 import logoImg from "./assets/logo.png";
+import { Capacitor } from "@capacitor/core";
 
 export default function App() {
   // Global Vault Verification state (from localStorage)
@@ -12,9 +14,18 @@ export default function App() {
     return !localStorage.getItem("securevault_salt");
   });
 
+  // Dynamic vault reset helper for developer testing
+  useEffect(() => {
+    if (window.location.search.includes("reset=true")) {
+      localStorage.clear();
+      window.location.href = window.location.origin;
+    }
+  }, []);
+
   // Secure In-Memory States (Wiped on Lock)
   const [masterKey, setMasterKey] = useState(null);
   const [decryptedItems, setDecryptedItems] = useState([]);
+  const [needsPinSetup, setNeedsPinSetup] = useState(false);
   
   // UI Control states
   const [activeModalItem, setActiveModalItem] = useState(null); // null, 'new', or item object
@@ -28,16 +39,18 @@ export default function App() {
   const handleLockVault = () => {
     setMasterKey(null);
     setDecryptedItems([]);
+    setNeedsPinSetup(false);
     if (inactivityTimerRef.current) {
       clearTimeout(inactivityTimerRef.current);
     }
   };
 
   // 2. Setup Vault (first-time initialization)
-  const handleSetupVault = async (masterPassword, recoveryPhrase) => {
+  const handleSetupVault = async (masterPassword, recoveryPhrase, pin) => {
     try {
       const result = await setupVault(masterPassword);
       const recoveryData = await encryptMasterPassword(masterPassword, recoveryPhrase);
+      const pinResult = await setupPin(pin);
       
       // Save verifier details to localStorage
       localStorage.setItem("securevault_salt", result.salt);
@@ -49,6 +62,11 @@ export default function App() {
       localStorage.setItem("securevault_recovery_salt", recoveryData.recoverySalt);
       localStorage.setItem("securevault_recovery_encrypted_password", recoveryData.recoveryEncryptedPassword);
       localStorage.setItem("securevault_recovery_encrypted_iv", recoveryData.recoveryEncryptedIv);
+
+      // Save PIN details to localStorage
+      localStorage.setItem("securevault_pin_salt", pinResult.pinSalt);
+      localStorage.setItem("securevault_pin_verifier_cipher", pinResult.pinVerifierCipher);
+      localStorage.setItem("securevault_pin_verifier_iv", pinResult.pinVerifierIv);
 
       setMasterKey(result.key);
       setDecryptedItems([]);
@@ -142,8 +160,14 @@ export default function App() {
 
       localStorage.setItem("securevault_items", JSON.stringify(reEncryptedItems));
 
+      // Clear old PIN so they must set up a new one
+      localStorage.removeItem("securevault_pin_salt");
+      localStorage.removeItem("securevault_pin_verifier_cipher");
+      localStorage.removeItem("securevault_pin_verifier_iv");
+
       setMasterKey(result.key);
       setDecryptedItems(decrypted);
+      setNeedsPinSetup(true);
       setIsFirstTime(false);
       resetInactivityTimer();
     } catch (e) {
@@ -182,6 +206,14 @@ export default function App() {
 
     setDecryptedItems(decrypted);
     resetInactivityTimer();
+
+    // Check if Security PIN has been set
+    const pinSalt = localStorage.getItem("securevault_pin_salt");
+    if (!pinSalt) {
+      setNeedsPinSetup(true);
+    } else {
+      setNeedsPinSetup(false);
+    }
   };
 
   // 4. Save Credential (New or Edited)
@@ -270,7 +302,7 @@ export default function App() {
   };
 
   // 7. Export Vault (Downloader)
-  const handleExportVault = () => {
+  const handleExportVault = async () => {
     const salt = localStorage.getItem("securevault_salt");
     const verifierCipher = localStorage.getItem("securevault_verifier_cipher");
     const verifierIv = localStorage.getItem("securevault_verifier_iv");
@@ -291,13 +323,43 @@ export default function App() {
       recoveryEncryptedIv
     };
 
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
-    const downloadAnchor = document.createElement("a");
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `securevault_backup_${new Date().toISOString().split("T")[0]}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+    const fileName = `securevault_backup_${new Date().toISOString().split("T")[0]}.json`;
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const { Filesystem, Directory } = await import("@capacitor/filesystem");
+        const { Share } = await import("@capacitor/share");
+
+        const jsonString = JSON.stringify(exportData, null, 2);
+
+        // Write the file to Cache directory
+        const writeResult = await Filesystem.writeFile({
+          path: fileName,
+          data: jsonString,
+          directory: Directory.Cache,
+          encoding: "utf8"
+        });
+
+        // Open the native Share sheet
+        await Share.share({
+          title: "Export SecureVault Backup",
+          text: "Here is your encrypted SecureVault backup file.",
+          url: writeResult.uri,
+          dialogTitle: "Save or Share Backup"
+        });
+      } catch (err) {
+        console.error("Native export failed:", err);
+        alert("Failed to export backup: " + err.message);
+      }
+    } else {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", fileName);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
   };
 
   // 8. Import Vault
@@ -401,6 +463,16 @@ export default function App() {
             onRecover={handleRecoverVault}
             onResetPassword={handleResetMasterPassword}
             onImport={handleImportVault}
+          />
+        ) : needsPinSetup ? (
+          <PinSetupScreen
+            onSetupPin={async (pin) => {
+              const pinResult = await setupPin(pin);
+              localStorage.setItem("securevault_pin_salt", pinResult.pinSalt);
+              localStorage.setItem("securevault_pin_verifier_cipher", pinResult.pinVerifierCipher);
+              localStorage.setItem("securevault_pin_verifier_iv", pinResult.pinVerifierIv);
+              setNeedsPinSetup(false);
+            }}
           />
         ) : (
           <VaultDashboard

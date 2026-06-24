@@ -173,3 +173,29 @@ export const decryptMasterPassword = async (recoveryPhrase, recoverySaltBase64, 
   const recoveryKey = await deriveRecoveryKey(recoveryPhrase, recoverySalt);
   return await decryptData(encryptedPasswordBase64, encryptedIvBase64, recoveryKey);
 };
+
+// Setup a new Security PIN: generate salt, derive key, and encrypt verification token
+export const setupPin = async (pin) => {
+  const salt = window.crypto.getRandomValues(new Uint8Array(16));
+  const key = await deriveKey(pin, salt);
+  const verifier = await encryptData("pin-verified", key);
+
+  return {
+    pinSalt: bufferToBase64(salt),
+    pinVerifierCipher: verifier.ciphertext,
+    pinVerifierIv: verifier.iv
+  };
+};
+
+// Verify PIN: try decrypting verification token
+export const verifyPin = async (pin, saltBase64, verifierCipher, verifierIv) => {
+  try {
+    const salt = new Uint8Array(base64ToBuffer(saltBase64));
+    const key = await deriveKey(pin, salt);
+    const decrypted = await decryptData(verifierCipher, verifierIv, key);
+
+    return decrypted === "pin-verified";
+  } catch {
+    return false;
+  }
+};

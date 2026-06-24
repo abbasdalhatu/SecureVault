@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SecureVault User Guide</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #312e81;
+      --secondary: #0891b2;
+      --text-main: #1f2937;
+      --text-muted: #4b5563;
+      --bg-light: #f9fafb;
+      --border: #e5e7eb;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text-main);
+      line-height: 1.6;
+      background-color: #ffffff;
+      font-size: 14px;
+    }
+
+    /* Page Setup */
+    .page {
+      padding: 2cm 2.5cm;
+      page-break-after: always;
+      position: relative;
+      min-height: 297mm; /* Ensure page-breaks look clean */
+    }
+
+    .page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* Cover Page */
+    .cover-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100vh;
+      max-height: 297mm; /* A4 height */
+      padding: 3cm 2.5cm;
+      page-break-after: always;
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+      color: #ffffff;
+    }
+
+    .cover-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .cover-logo {
+      width: 60px;
+      height: 60px;
+    }
+
+    .cover-brand {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      background: linear-gradient(to right, #00f2fe, #4facfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .cover-body {
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+
+    .cover-title {
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      letter-spacing: -0.03em;
+    }
+
+    .cover-subtitle {
+      font-size: 1.5rem;
+      color: #cbd5e1;
+      font-weight: 400;
+      max-width: 600px;
+      margin-bottom: 2rem;
+    }
+
+    .cover-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+
+    /* Standard Page Elements */
+    h1 {
+      font-size: 1.8rem;
+      color: var(--primary-dark);
+      margin-bottom: 1.2rem;
+      font-weight: 800;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 0.4rem;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      color: var(--primary-dark);
+      margin-top: 1.2rem;
+      margin-bottom: 0.8rem;
+      font-weight: 700;
+    }
+
+    p {
+      margin-bottom: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Steps Layout */
+    .steps-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin-top: 1rem;
+    }
+
+    .step-card {
+      display: flex;
+      gap: 1rem;
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .step-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      flex-grow: 1;
+    }
+
+    .step-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 0.3rem;
+    }
+
+    .step-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Callouts */
+    .callout {
+      border-left: 4px solid var(--primary);
+      background: #eff6ff;
+      padding: 0.8rem 1rem;
+      border-radius: 0 12px 12px 0;
+      margin: 1.2rem 0;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .callout.warning {
+      border-color: var(--warning);
+      background: #fffbeb;
+    }
+    .callout.warning .callout-title {
+      color: #b45309;
+    }
+
+    .callout.danger {
+      border-color: var(--danger);
+      background: #fdf2f8;
+    }
+    .callout.danger .callout-title {
+      color: #be185d;
+    }
+
+    .callout.success {
+      border-color: var(--success);
+      background: #ecfdf5;
+    }
+    .callout.success .callout-title {
+      color: #047857;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .feature-box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      background: #ffffff;
+    }
+
+    .feature-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    /* Footer for internal pages */
+    .page-footer {
+      position: absolute;
+      bottom: 1.2cm;
+      left: 2.5cm;
+      right: 2.5cm;
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      padding-top: 0.6rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    code {
+      font-family: Consolas, Monaco, monospace;
+      background: #f3f4f6;
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+      color: #111827;
+    }
+
+    /* Custom SVG bullet points */
+    ul {
+      list-style-type: none;
+      margin-left: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.4rem;
+      color: var(--text-muted);
+    }
+
+    li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 6px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--primary);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.4rem;
+      background: #e0e7ff;
+      color: #3730a3;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .badge.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    /* Screenshot Styles */
+    .screenshot-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      margin: 1.2rem 0;
+      page-break-inside: avoid;
+    }
+
+    .app-screenshot {
+      width: 100%;
+      max-width: 520px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .screenshot-caption {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PAGE 1: COVER PAGE -->
+  <div class="cover-page">
+    <div class="cover-header">
+      <svg class="cover-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" fill="url(#logo-grad)" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M9 11L11 13L15 9" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00f2fe"/>
+            <stop offset="100%" stop-color="#4facfe"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="cover-brand">SecureVault</span>
+    </div>
+    <div class="cover-body">
+      <h1 class="cover-title" style="border: none; color: white; padding: 0;">User Setup &amp;<br>Operations Guide</h1>
+      <p class="cover-subtitle">Complete guide for deploying, configuring, and managing credentials securely across Windows Desktop and Android Mobile applications.</p>
+    </div>
+    <div class="cover-footer">
+      <span>Version 1.0.0</span>
+      <span>© 2026 SecureVault Security Team</span>
+    </div>
+  </div>
+
+  <!-- PAGE 2: SECURITY MODEL & ARCHITECTURE -->
+  <div class="page">
+    <h1>1. Introduction &amp; Security Model</h1>
+    <p>SecureVault is a zero-knowledge, client-side encrypted password manager. This means your raw credentials, master password, and PIN codes never leave your local device and are never sent to a remote server in unencrypted form.</p>
+    
+    <h2>1.1 Zero-Knowledge Encryption</h2>
+    <p>All encryption is performed locally on your device using advanced cryptography:</p>
+    <ul>
+      <li><strong>AES-256-GCM Encryption</strong>: Your credentials are encrypted using Advanced Encryption Standard in Galois/Counter Mode. This provides both confidentiality and integrity authentication.</li>
+      <li><strong>PBKDF2 Key Derivation</strong>: Your Master Password is stretched using Password-Based Key Derivation Function 2 (PBKDF2) with 100,000 iterations to derive the database encryption key, protecting against brute-force attacks.</li>
+      <li><strong>Local SQLite Storage</strong>: Your database is stored locally. Access is gated entirely by your local encryption keys.</li>
+    </ul>
+
+    <div class="callout warning">
+      <div class="callout-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Important Security Notice
+      </div>
+      <p style="margin-bottom: 0; color: #92400e;">Because SecureVault uses a zero-knowledge security model, there is no "Forgot Password" option. If you lose your Master Password and do not have your 10-word Recovery Phrase, your data cannot be recovered by anyone. Keep them safe.</p>
+    </div>
+
+    <h2>1.2 Core Capabilities</h2>
+    <div class="features-grid">
+      <div class="feature-box">
+        <div class="feature-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Secure Vault
+        </div>
+        <p style="font-size: 0.85rem; margin-bottom: 0;">Organize, store, and edit usernames, passwords, URLs, and notes in an encrypted database.</p>
+      </div>
+      <div class="feature-box">
+        <div class="feature-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Multiplatform
+        </div>
+        <p style="font-size: 0.85rem; margin-bottom: 0;">Access matching client-side interfaces on Windows Desktop and Android Mobile.</p>
+      </div>
+      <div class="feature-box">
+        <div class="feature-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          Password Generator
+        </div>
+        <p style="font-size: 0.85rem; margin-bottom: 0;">Generate strong, customizable passwords, memorable passphrases, and secure PIN codes.</p>
+      </div>
+      <div class="feature-box">
+        <div class="feature-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Security Auditor
+        </div>
+        <p style="font-size: 0.85rem; margin-bottom: 0;">Analyze vault health with a visual circular score and resolve weak passwords in one-click.</p>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>SecureVault Operations Guide</span>
+      <span>Page 2</span>
+    </div>
+  </div>
+
+  <!-- PAGE 3: WINDOWS DESKTOP INSTALLATION & INITIAL SETUP -->
+  <div class="page">
+    <h1>2. Windows Desktop Setup</h1>
+    <p>Deploying the desktop app is simple and does not require administrative privileges. Follow these steps to configure your environment.</p>
+    
+    <h2>2.1 Installation</h2>
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <div class="step-title">Run Setup Package</div>
+          <div class="step-desc">Locate the installer file <code>SecureVault Setup 1.0.0.exe</code> on your machine and double-click to start. Select your desired directory.</div>
+        </div>
+      </div>
+      
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <div class="step-title">Launch Application</div>
+          <div class="step-desc">Upon completion, check "Run SecureVault" and click Finish. Shortcuts will be generated on your <strong>Desktop</strong> and in the <strong>Start Menu</strong> as <em>SecureVault</em>.</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>2.2 First-Time Vault Initialization</h2>
+    <p>When you launch the application for the first time, you must initialize your local vault database. Follow the steps below corresponding to <strong>Figure 2.1</strong>:</p>
+    
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <div class="step-title">Enter Master Password</div>
+          <div class="step-desc">Enter a long, complex password in the <strong>Master Password</strong> input field. The real-time strength indicator underneath will evaluate the password's complexity. Aim for a green status indicator.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <div class="step-title">Confirm Master Password</div>
+          <div class="step-desc">Re-type your password in the <strong>Confirm Master Password</strong> input field. The system will display a checkmark or confirmation badge when the passwords match.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <div class="step-title">Set Quick Security PIN</div>
+          <div class="step-desc">Input a 4-to-6 digit numeric PIN in the <strong>Quick PIN</strong> input field and confirm it in the field below. This PIN allows fast unlocking during your session without re-typing your full Master Password.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <div class="step-title">Proceed to Recovery Phrase</div>
+          <div class="step-desc">Once all fields are validly filled and confirm matches are verified, click the blue <strong>Proceed to Recovery Phrase</strong> button to move to Step 2.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screenshot-container">
+      <img class="app-screenshot" src="assets/screenshots/setup-step1.png" alt="Define Password and PIN Screen">
+      <div class="screenshot-caption">Figure 2.1: Vault Setup Step 1 (Master Password &amp; PIN setup)</div>
+    </div>
+
+    <div class="page-footer">
+      <span>SecureVault Operations Guide</span>
+      <span>Page 3</span>
+    </div>
+  </div>
+
+  <!-- PAGE 4: SETUP STEP 2 - RECOVERY PHRASE -->
+  <div class="page">
+    <h1>2.3 Backing Up Recovery Phrase</h1>
+    <p>The second stage of setup generates a unique fallback phrase to verify your account in case you lose your master credentials. Refer to <strong>Figure 2.2</strong> to complete this step:</p>
+    
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <div class="step-title">Observe and Copy the 10 Seed Words</div>
+          <div class="step-desc">Observe the <strong>10-word recovery phrase</strong> displayed in the numbered badges on your screen. These words are drawn randomly from our secure dictionary.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <div class="step-title">Physically Write Down the Words</div>
+          <div class="step-desc">Write down the 10 words on paper in the exact sequence shown. Avoid storing them digitally (e.g. in text files, emails, or unencrypted screenshots) to prevent online exposure.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <div class="step-title">Tick the Acknowledgment Checkbox</div>
+          <div class="step-desc">Check the box labeled <em>"I have securely written down and stored my 10-word recovery phrase"</em>. This action activates the initialization button.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <div class="step-title">Initialize Secure Vault</div>
+          <div class="step-desc">Click the green <strong>Initialize Secure Vault</strong> button. SecureVault will encrypt and write your security database to your local machine and open the dashboard.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screenshot-container">
+      <img class="app-screenshot" src="assets/screenshots/setup-step2.png" alt="10 Recovery Words Screen">
+      <div class="screenshot-caption">Figure 2.2: Vault Setup Step 2 (10-word seed recovery phrase)</div>
+    </div>
+
+    <div class="page-footer">
+      <span>SecureVault Operations Guide</span>
+      <span>Page 4</span>
+    </div>
+  </div>
+
+  <!-- PAGE 5: MOBILE APP SETUP & SYNC -->
+  <div class="page">
+    <h1>3. Android Mobile Setup</h1>
+    <p>Access your credentials on-the-go by installing the Android package file. The mobile app utilizes the exact same local database scheme and security guidelines.</p>
+    
+    <h2>3.1 Installation</h2>
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <div class="step-title">Transfer and Install APK</div>
+          <div class="step-desc">Copy <code>app-debug.apk</code> to your Android device. Enable "Install Unknown Apps" for your File Manager under Settings, tap the APK, and install the app (labeled <em>SecureVault</em>).</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>3.2 Syncing &amp; Importing Your Vault</h2>
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <div class="step-title">Database Export/Import</div>
+          <div class="step-desc">Go to Settings &rarr; Export Vault on desktop. Transfer the encrypted file <code>vault_backup.json</code> to your mobile device. In the mobile app, click <strong>Import Vault</strong>, load the file, and enter your Master Password.</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>3.3 Lock and Unlock State</h2>
+    <p>To protect your keys when the device is left unattended, the vault automatically locks after a period of inactivity. Refer to <strong>Figure 3.1</strong> to unlock the application:</p>
+
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <div class="step-title">Locate Unlock Inputs</div>
+          <div class="step-desc">When the auto-lock triggers or you lock the vault manually, the unlock screen covers the app. Locate the input field which supports either your Master Password or Quick PIN.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <div class="step-title">Enter Credentials</div>
+          <div class="step-desc">Type your Master Password or Quick PIN. You can click the eye icon on the right side of the input field to toggle visibility and check your typing.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <div class="step-title">Unlock Vault</div>
+          <div class="step-desc">Click the blue <strong>Unlock Vault</strong> button or press the Enter key on your keyboard. The database will be decrypted and you will be returned to your dashboard.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screenshot-container">
+      <img class="app-screenshot" src="assets/screenshots/unlock-screen.png" alt="Vault Unlock Screen">
+      <div class="screenshot-caption">Figure 3.1: Application Lock Screen (Master Password Gate)</div>
+    </div>
+
+    <div class="page-footer">
+      <span>SecureVault Operations Guide</span>
+      <span>Page 5</span>
+    </div>
+  </div>
+
+  <!-- PAGE 6: CORE USAGE - PASSWORD MANAGEMENT & GENERATION -->
+  <div class="page">
+    <h1>4. Core Operations &amp; Password Generator</h1>
+    <p>SecureVault makes it straightforward to add, organize, search, and generate high-entropy passwords.</p>
+    
+    <h2>4.1 Managing Credentials</h2>
+    <p>Manage and retrieve your credentials using the steps below matching <strong>Figure 4.1</strong>:</p>
+
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <div class="step-title">Explore Dashboard Grid</div>
+          <div class="step-desc">All saved credentials are listed in cards indicating their site title, username, target website URL, and strength level.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <div class="step-title">Search &amp; Filter Items</div>
+          <div class="step-desc">Type keywords in the search bar at the top of the screen. The list instantly filters items by matching title, username, or URL fields.</div>
+        </div>
+      </div>       <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <div class="step-title">Reveal &amp; Copy Actions</div>
+          <div class="step-desc">Click the eye icon (<code>👁️</code>) to reveal a password. For your security, a verification overlay will require you to enter your <strong>Quick Security PIN</strong> before the password is shown in plain text. The clipboard copy button (<code>📋</code>) copies the password directly and clears it automatically after 30 seconds.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <div class="step-title">Add New Credential</div>
+          <div class="step-desc">Click the blue <strong>+ Add Item</strong> button on the top right to open the creation form. Fill in the title, username, password, URL, and any custom notes, then save.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screenshot-container">
+      <img class="app-screenshot" src="assets/screenshots/dashboard.png" alt="Vault Dashboard">
+      <div class="screenshot-caption">Figure 4.1: Vault Dashboard (Credential List &amp; Quick Actions)</div>
+    </div>
+
+    <div class="callout success">
+      <div class="callout-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        PIN-Shield Protected Viewing
+      </div>
+      <p style="margin-bottom: 0; color: #047857;">To protect your credentials from physical over-the-shoulder snooping when the app is active, clicking the eye reveal icon triggers an extra security confirmation layer. You must verify authorization by entering your <strong>Quick Security PIN</strong> (or Master Password) before the password will be shown in plain text.</p>
+    </div>>
+
+    <h2>4.2 Password Generator</h2>
+    <p>Create secure passwords with 3 generation modes. Follow these steps as illustrated in <strong>Figure 4.2</strong>:</p>
+
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <div class="step-title">Select Password Mode</div>
+          <div class="step-desc">Choose from the tabs: <em>Random String</em> (fully customized character sets), <em>Memorable Passphrase</em> (XKCD dictionary-style words), or <em>PIN Code</em> (numeric).</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <div class="step-title">Adjust Length and Rules</div>
+          <div class="step-desc">Use the slider to set your desired character/word count. Toggle parameters like uppercase, numbers, symbols, and separators. Enable <em>"Exclude Ambiguous"</em> to avoid character confusion.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <div class="step-title">Verify Crack Metrics</div>
+          <div class="step-desc">Review the Shannon Entropy bits and the estimated time required to crack the password under online (100 req/s) vs offline (100 billion req/s) brute-force conditions.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <div class="step-title">Regenerate and Copy</div>
+          <div class="step-desc">Click the circular arrow <strong>Regenerate</strong> button to cycle through new password choices, then click the blue <strong>Copy Password</strong> button to place it on your clipboard.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screenshot-container">
+      <img class="app-screenshot" src="assets/screenshots/generator.png" alt="Password Generator Screen">
+      <div class="screenshot-caption">Figure 4.2: Advanced Password Generator Tool</div>
+    </div>
+
+    <div class="page-footer">
+      <span>SecureVault Operations Guide</span>
+      <span>Page 6</span>
+    </div>
+  </div>
+
+  <!-- PAGE 7: SECURITY AUDITOR & BEST PRACTICES -->
+  <div class="page">
+    <h1>5. Security Auditor &amp; Best Practices</h1>
+    <p>SecureVault features an automated auditing dashboard that scans your vault locally to identify vulnerabilities.</p>
+    
+    <h2>5.1 Vault Health Dashboard</h2>
+    <p>Analyze and improve your overall vault health status using the steps below matching <strong>Figure 5.1</strong>:</p>
+
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <div class="step-title">Open Security Audit Panel</div>
+          <div class="step-desc">Select <strong>🛡️ Security Audit</strong> from the "Tools" sidebar menu. If you have credentials saved, the system will trigger an automatic local scan.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <div class="step-title">Inspect Health Score</div>
+          <div class="step-desc">Verify the security status represented by the animated circular SVG health meter. If your vault is completely empty, it defaults to <code>0%</code>. Once credentials are added, it starts at <code>100%</code> and deducts points for vulnerabilities.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <div class="step-title">Identify Security Flags</div>
+          <div class="step-desc">Review the lists of flagged items categorized as <em>Weak Passwords</em> (entropy under 60 bits), <em>Short Passwords</em> (under 10 characters), or <em>Reused Passwords</em> (identical credentials shared across domains).</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <div class="step-title">Trigger ⚡ One-Click Auto-Fix</div>
+          <div class="step-desc">Click the green <strong>⚡ Auto-Fix</strong> button next to any vulnerable item. The system instantly generates a strong 20-character military-grade replacement, encrypts it, writes it to the local SQLite database, and updates the health meter dynamically.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screenshot-container">
+      <img class="app-screenshot" src="assets/screenshots/security-audit.png" alt="Security Audit Dashboard">
+      <div class="screenshot-caption">Figure 5.1: Security Audit Dashboard (Circular Health Score &amp; Flags)</div>
+    </div>
+
+    <h2>5.3 General Security Best Practices</h2>
+    <div class="callout success">
+      <div class="callout-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Actionable Guidelines
+      </div>
+      <ul>
+        <li style="font-size: 0.88rem; margin-bottom: 0.3rem;">Run the <strong>Security Audit</strong> monthly and auto-fix any reused or weak passwords.</li>
+        <li style="font-size: 0.88rem; margin-bottom: 0.3rem;">Write down your 10-word Recovery Phrase on paper and store it in a water/fireproof safe.</li>
+        <li style="font-size: 0.88rem; margin-bottom: 0.3rem;">Configure the auto-lock timeout in settings to lock your database after 5 minutes of inactivity.</li>
+      </ul>
+    </div>
+
+    <div class="page-footer">
+      <span>SecureVault Operations Guide</span>
+      <span>Page 7</span>
+    </div>
+  </div>
+
+</body>
+</html>
